@@ -35,6 +35,10 @@ const addProduct = (req, res) => {
     };
     products.push(newProduct);
     fs.writeFileSync(productsFile, JSON.stringify(products));
+    
+    // Emitir actualización por Websockets
+    req.io.emit('productList', products);
+
     res.status(201).json(newProduct);
 };
 

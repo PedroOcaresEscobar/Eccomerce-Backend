@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Productos en tiempo real</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // Conexión al servidor WebSocket
+            const socket = io();
+            const productList = document.getElementById('productList');
+
+            // Recibir la lista de productos actualizada desde el servidor
+            socket.on('productList', (products) => {
+                productList.innerHTML = ''; // Limpiar lista de productos
+                // Recorrer cada producto recibido y agregarlo al DOM
+                products.forEach(product => {
+                    const li = document.createElement('li');
+                    li.textContent = `${product.title} - ${product.price}`;
+                    productList.appendChild(li);
+                });
+            });
+
+            // Manejar el envío del formulario para agregar un nuevo producto
+            const form = document.getElementById('productForm');
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const newProduct = {
+                    title: e.target.title.value,
+                    price: e.target.price.value
+                };
+                socket.emit('addProduct', newProduct); // Enviar el nuevo producto al servidor
+                e.target.reset(); // Reiniciar el formulario después de enviar
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>Productos en tiempo real</h1>
+    <ul id="productList"></ul> <!-- Lista de productos que se actualizará en tiempo real -->
+
+    <h2>Agregar producto</h2>
+    <form id="productForm">
+        <input type="text" name="title" placeholder="Nombre del producto" required>
+        <input type="number" name="price" placeholder="Precio" required>
+        <button type="submit">Agregar</button>
+    </form>
+</body>
+</html>
